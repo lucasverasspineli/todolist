@@ -23,10 +23,13 @@ public class TaskController {
         System.out.println("Chegou no controller "+request.getAttribute("idUser"));
         var idUser = request.getAttribute("idUser");
         taskModel.setIdUser((UUID) idUser);
-
+        //Validação para datas
         var currentDate = LocalDateTime.now();
-        if(currentDate.isAfter(taskModel.getStartAt())){
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("A data inicio tem que ser maior que a data atual");
+        if(currentDate.isAfter(taskModel.getStartAt()) || currentDate.isAfter(taskModel.getEndAt())){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("A data de inicio ou de término tem que ser maior que a data atual");
+        }
+        if(taskModel.getStartAt().isAfter(taskModel.getEndAt())){
+            return  ResponseEntity.status(HttpStatus.BAD_REQUEST).body("A data de início tem que ser menor que a data de término");
         }
         var task = this.iTaskRepository.save(taskModel);
         return ResponseEntity.status(HttpStatus.OK).body(task);
